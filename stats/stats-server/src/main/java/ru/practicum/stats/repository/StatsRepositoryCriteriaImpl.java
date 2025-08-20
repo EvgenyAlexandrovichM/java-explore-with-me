@@ -4,7 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.*;
 import org.springframework.stereotype.Repository;
-import ru.practicum.stats.dto.EndPointHitResponseDto;
+import ru.practicum.stats.dto.ViewStats;
 import ru.practicum.stats.entity.EndpointHit;
 
 import java.time.LocalDateTime;
@@ -18,18 +18,18 @@ public class StatsRepositoryCriteriaImpl implements StatsRepositoryCriteria {
     private EntityManager em;
 
     @Override
-    public List<EndPointHitResponseDto> findStatsByCriteria(LocalDateTime start,
-                                                            LocalDateTime end,
-                                                            List<String> uris,
-                                                            boolean unique) {
+    public List<ViewStats> findStatsByCriteria(LocalDateTime start,
+                                               LocalDateTime end,
+                                               List<String> uris,
+                                               boolean unique) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<EndPointHitResponseDto> dataQuery = cb.createQuery(EndPointHitResponseDto.class);
+        CriteriaQuery<ViewStats> dataQuery = cb.createQuery(ViewStats.class);
 
         Root<EndpointHit> root = dataQuery.from(EndpointHit.class);
         Expression<Long> hitCount = unique ? cb.countDistinct(root.get("ip")) : cb.count(root.get("id"));
 
         dataQuery.select(cb.construct(
-                EndPointHitResponseDto.class,
+                ViewStats.class,
                 root.get("app"),
                 root.get("uri"),
                 hitCount

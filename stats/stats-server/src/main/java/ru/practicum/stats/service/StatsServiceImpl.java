@@ -4,8 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.stats.dto.EndPointHitCreateDto;
-import ru.practicum.stats.dto.EndPointHitResponseDto;
+import ru.practicum.stats.dto.EndpointHitCreateDto;
+import ru.practicum.stats.dto.EndpointHitResponseDto;
+import ru.practicum.stats.dto.ViewStats;
 import ru.practicum.stats.dto.mapper.StatsMapper;
 import ru.practicum.stats.entity.EndpointHit;
 import ru.practicum.stats.repository.StatsRepository;
@@ -25,7 +26,7 @@ public class StatsServiceImpl implements StatsService {
 
 
     @Override
-    public EndPointHitResponseDto saveHit(EndPointHitCreateDto create) {
+    public EndpointHitResponseDto saveHit(EndpointHitCreateDto create) {
         EndpointHit entity = mapper.toEntity(create);
         EndpointHit saved = repository.save(entity);
         log.info("Hit={} saved", saved);
@@ -34,10 +35,10 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<EndPointHitResponseDto> getStats(LocalDateTime start,
-                                                 LocalDateTime end,
-                                                 List<String> uris,
-                                                 boolean unique) {
+    public List<ViewStats> getStats(LocalDateTime start,
+                                    LocalDateTime end,
+                                    List<String> uris,
+                                    boolean unique) {
         return repository.findStatsByCriteria(start, end, uris, unique);
     }
 }

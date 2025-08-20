@@ -5,16 +5,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EndPointHitResponseDto {
+public class EndpointHitResponseDto {
 
     private String app;
 
     private String uri;
 
-    private Long hits;
+    private String ip;
+
+    private LocalDateTime timestamp;
 }
