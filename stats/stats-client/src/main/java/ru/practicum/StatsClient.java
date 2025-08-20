@@ -10,12 +10,8 @@ import ru.practicum.stats.dto.EndpointHitCreateDto;
 import ru.practicum.stats.dto.ViewStats;
 import ru.practicum.stats.utils.DateTimeUtils;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,12 +54,5 @@ public class StatsClient {
                 .orElse(List.of());
 
 
-    }
-
-    private String encodeDateTime(LocalDateTime dateTime) {
-        return URLEncoder.encode(
-                dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                StandardCharsets.UTF_8
-        );
     }
 }
