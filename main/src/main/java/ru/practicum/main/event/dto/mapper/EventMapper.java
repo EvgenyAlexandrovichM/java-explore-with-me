@@ -3,7 +3,7 @@ package ru.practicum.main.event.dto.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.practicum.main.category.dto.mapper.CategoryMapper;
-import ru.practicum.main.event.dto.EventDto;
+import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
 import ru.practicum.main.event.entity.Event;
@@ -16,7 +16,7 @@ public interface EventMapper {
 
     EventShortDto toShortDto(Event event);
 
-    EventDto toDto(Event event);
+    EventFullDto toFullDto(Event event);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "state", ignore = true)
@@ -24,6 +24,7 @@ public interface EventMapper {
     @Mapping(target = "publishedOn", ignore = true)
     @Mapping(target = "initiator", ignore = true)
     @Mapping(target = "category", ignore = true)
+    @Mapping(target = "requests", ignore = true)
     Event fromNewEventDto(NewEventDto dto);
 
     default Location toLocation(LocationDto dto) {

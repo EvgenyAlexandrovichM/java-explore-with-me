@@ -15,7 +15,7 @@ import ru.practicum.main.user.dto.UserDto;
 import ru.practicum.main.user.dto.mapper.UserMapper;
 import ru.practicum.main.user.entity.User;
 import ru.practicum.main.user.repository.UserRepository;
-import ru.practicum.main.user.repository.UserServiceImpl;
+import ru.practicum.main.user.service.UserServiceImpl;
 
 import java.util.List;
 

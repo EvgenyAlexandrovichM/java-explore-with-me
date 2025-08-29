@@ -15,9 +15,10 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventDto {
+public class EventFullDto {
 
     private Long id;
+    private String title;
     private String annotation;
     private CategoryDto category;
     private Long confirmedRequests;
@@ -31,6 +32,5 @@ public class EventDto {
     private LocalDateTime publishedOn;
     private Boolean requestModeration;
     private String state;
-    private String title;
     private Long views;
 }

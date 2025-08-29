@@ -7,9 +7,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.main.category.entity.Category;
 import ru.practicum.main.event.location.Location;
+import ru.practicum.main.request.entity.Request;
 import ru.practicum.main.user.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -47,21 +50,25 @@ public class Event {
     @Column(nullable = false)
     private Boolean paid;
 
-    @Column(name = "participant_limit")
-    private Integer participantLimit;
+    @Column(name = "participant_limit", nullable = false)
+    private Long participantLimit;
 
-    @Column(name = "request_moderation")
+    @Column(name = "request_moderation", nullable = false)
     private Boolean requestModeration;
 
-    @Column(nullable = false)
+    @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
 
-    @Column(nullable = false)
+    @Column(name = "created_on", nullable = false)
     private LocalDateTime createdOn;
 
+    @Column(name = "published_on")
     private LocalDateTime publishedOn;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private EventState state;
+
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
+    private List<Request> requests = new ArrayList<>();
 }

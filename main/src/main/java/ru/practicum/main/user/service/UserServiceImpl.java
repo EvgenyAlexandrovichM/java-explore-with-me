@@ -1,4 +1,4 @@
-package ru.practicum.main.user.repository;
+package ru.practicum.main.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,7 @@ import ru.practicum.main.user.dto.NewUserRequest;
 import ru.practicum.main.user.dto.UserDto;
 import ru.practicum.main.user.dto.mapper.UserMapper;
 import ru.practicum.main.user.entity.User;
-import ru.practicum.main.user.service.UserService;
+import ru.practicum.main.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
