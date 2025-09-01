@@ -16,6 +16,6 @@ public interface PrivateEventService {
 
     EventFullDto getUserEvent(Long userId, Long eventId, HttpServletRequest request);
 
-    List<EventFullDto> getUserEvents(PrivateEventParams params, HttpServletRequest request);
+    List<EventFullDto> getUserEvents(PrivateEventParams params);
 
 }

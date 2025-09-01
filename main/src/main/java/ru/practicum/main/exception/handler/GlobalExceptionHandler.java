@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.EntityAlreadyExistsException;
 import ru.practicum.main.exception.EntityNotFoundException;
 
@@ -41,6 +42,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(
                 buildError(HttpStatus.BAD_REQUEST, "Invalid data", ex.getMessage(), null),
                 HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> handleConflict(ConflictException ex) {
+        log.warn("409 Conflict: {}", ex.getMessage());
+        return new ResponseEntity<>(
+                buildError(HttpStatus.CONFLICT, "Conflict data", ex.getMessage(), null),
+                HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

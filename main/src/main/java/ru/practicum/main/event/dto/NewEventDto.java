@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.main.event.location.LocationDto;
+import ru.practicum.main.event.dto.location.LocationDto;
 
 import java.time.LocalDateTime;
 

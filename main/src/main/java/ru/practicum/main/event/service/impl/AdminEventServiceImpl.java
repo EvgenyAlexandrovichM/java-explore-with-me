@@ -16,8 +16,8 @@ import ru.practicum.main.event.dto.mapper.EventMapper;
 import ru.practicum.main.event.dto.params.AdminEventParams;
 import ru.practicum.main.event.entity.Event;
 import ru.practicum.main.event.entity.EventState;
-import ru.practicum.main.event.location.Location;
-import ru.practicum.main.event.location.LocationDto;
+import ru.practicum.main.event.entity.location.Location;
+import ru.practicum.main.event.dto.location.LocationDto;
 import ru.practicum.main.event.repository.EventRepository;
 import ru.practicum.main.event.repository.specification.AdminEventSpecifications;
 import ru.practicum.main.event.service.AdminEventService;
@@ -65,17 +65,24 @@ public class AdminEventServiceImpl implements AdminEventService {
         updateStateIfNeeded(event, updateDto.getStateAction());
         log.info("State={} updated for event id={}", event.getState(), event.getId());
 
+        log.info("Event with id={} updated", event.getId());
         return mapper.toFullDto(eventRepository.save(event));
     }
 
     private Event getEventOrThrow(Long id) {
         return eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Event with id " + id + " not found"));
+                .orElseThrow(() -> {
+                    log.warn("EventId={} not found", id);
+                    return new EntityNotFoundException("Event with id " + id + " not found");
+                });
     }
 
     private Category getCategoryOrThrow(Long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Category with id " + id + " not found"));
+                .orElseThrow(() -> {
+                    log.warn("CategoryId={} not found", id);
+                    return new EntityNotFoundException("Category with id " + id + " not found");
+                });
     }
 
     private Specification<Event> buildSpecification(AdminEventParams params) {

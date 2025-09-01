@@ -1,4 +1,4 @@
-package ru.practicum.main.event.location;
+package ru.practicum.main.event.entity.location;
 
 
 import jakarta.persistence.*;

@@ -53,7 +53,7 @@ public class PublicEventServiceImpl implements PublicEventService {
     public EventFullDto getEventById(Long eventId, HttpServletRequest request) {
         logRequest(request);
 
-        Event event = findEventOrThrow(eventId);
+        Event event = getEventOrThrow(eventId);
 
         if (event.getState() != EventState.PUBLISHED) {
             log.warn("Event with id={} not found", event.getId());
@@ -63,9 +63,12 @@ public class PublicEventServiceImpl implements PublicEventService {
         return mapper.toFullDto(event);
     }
 
-    private Event findEventOrThrow(Long id) {
-        return eventRepository.findById(id).
-                orElseThrow(() -> new EntityNotFoundException("Event with id " + id + " not found"));
+    private Event getEventOrThrow(Long id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("EventId={} not found", id);
+                    return new EntityNotFoundException("Event with id " + id + " not found");
+                });
     }
 
     private void logRequest(HttpServletRequest request) {

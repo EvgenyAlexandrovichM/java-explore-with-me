@@ -1,19 +1,20 @@
 package ru.practicum.main.request.dto.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 import ru.practicum.main.request.entity.Request;
 
-//@Mapper(componentModel = "spring")
-//public interface RequestMapper {
-//
-//    Request toEntity(ParticipationRequestDto dto);
-//
-//    ParticipationRequestDto toDto(Request request);
-//}
+import java.util.List;
+
+@Mapper(componentModel = "spring")
+public interface RequestMapper {
+
+    @Mapping(source = "event.id", target = "event")
+    @Mapping(source = "requester.id", target = "requester")
+    ParticipationRequestDto toDto(Request request);
+
+    List<ParticipationRequestDto> toDtoList(List<Request> requests);
+}
 
 
-/**
- Пока проблемный маппер из-за которого не поднимается контекст
- //TODO
-  **/

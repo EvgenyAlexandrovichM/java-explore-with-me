@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.main.category.entity.Category;
-import ru.practicum.main.event.location.Location;
+import ru.practicum.main.event.entity.location.Location;
 import ru.practicum.main.request.entity.Request;
 import ru.practicum.main.user.entity.User;
 

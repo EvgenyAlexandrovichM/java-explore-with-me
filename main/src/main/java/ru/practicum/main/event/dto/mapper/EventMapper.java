@@ -7,8 +7,8 @@ import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
 import ru.practicum.main.event.entity.Event;
-import ru.practicum.main.event.location.Location;
-import ru.practicum.main.event.location.LocationDto;
+import ru.practicum.main.event.entity.location.Location;
+import ru.practicum.main.event.dto.location.LocationDto;
 import ru.practicum.main.user.dto.mapper.UserMapper;
 
 @Mapper(componentModel = "spring", uses = {CategoryMapper.class, UserMapper.class})
