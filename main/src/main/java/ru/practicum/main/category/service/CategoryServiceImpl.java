@@ -26,7 +26,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto createCategory(NewCategoryDto dto) {
-        validateUniqueName(dto.getName(), null, null);
+        ensureUniqueName(dto.getName());
         Category category = mapper.fromNewDto(dto);
         Category saved = categoryRepository.save(category);
         log.info("CategoryId={} saved successfully", saved.getId());
@@ -36,8 +36,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto updateCategory(Long id, NewCategoryDto dto) {
         Category category = getCategoryOrThrow(id);
-        validateUniqueName(dto.getName(), id, category);
-        category.setName(dto.getName());
+
+        String newName = dto.getName();
+        if (newName != null && !newName.equals(category.getName())) {
+            ensureUniqueName(newName);
+            category.setName(newName);
+        }
+
         Category updated = categoryRepository.save(category);
         log.info("CategoryId={} updated successfully", updated.getId());
         return mapper.toDto(updated);
@@ -74,12 +79,10 @@ public class CategoryServiceImpl implements CategoryService {
                 });
     }
 
-    private void validateUniqueName(String name, Long id, Category existingCategory) {
+    private void ensureUniqueName(String name) {
         if (categoryRepository.existsByName(name)) {
-            if (id == null || (existingCategory != null && existingCategory.getName().equals(name))) {
-                log.warn("Category name={} already exists", name);
-                throw new EntityAlreadyExistsException("Category with name " + name + " already exists");
-            }
+            log.warn("Category name={} already exists", name);
+            throw new EntityAlreadyExistsException("Category with name " + name + " already exists");
         }
     }
 }

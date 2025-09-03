@@ -27,6 +27,7 @@ import ru.practicum.main.event.repository.specification.PrivateEventSpecificatio
 import ru.practicum.main.event.service.PrivateEventService;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.EntityNotFoundException;
+import ru.practicum.main.request.entity.RequestStatus;
 import ru.practicum.main.stats.hit.HitLoggingService;
 import ru.practicum.main.stats.view.EventViewService;
 import ru.practicum.main.user.entity.User;
@@ -74,8 +75,10 @@ public class PrivateEventServiceImpl implements PrivateEventService {
 
         validateUpdatableState(event);
 
-        validateEventDate(dto.getEventDate());
-        event.setEventDate(dto.getEventDate());
+        if (dto.getEventDate() != null) {
+            validateEventDate(dto.getEventDate());
+            event.setEventDate(dto.getEventDate());
+        }
 
         updateBasicFields(event, dto);
         log.info("Basic fields updated for event id={}", event.getId());
@@ -93,10 +96,11 @@ public class PrivateEventServiceImpl implements PrivateEventService {
 
     @Override
     public EventFullDto getUserEvent(Long userId, Long eventId, HttpServletRequest request) {
-        logRequest(request);
         getUserOrThrow(userId);
         Event event = getEventOrThrow(eventId);
         checkOwnership(event, userId);
+
+        logRequest(request);
 
         EventFullDto dto = mapper.toFullDto(event);
         dto.setViews(getViewsForSingleEvent(event));
@@ -167,7 +171,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                 event.setState(EventState.PENDING);
             }
             if (stateAction.equals(StateAction.CANCEL_REVIEW)) {
-                event.setState(EventState.REJECTED);
+                event.setState(EventState.CANCELED);
             }
         }
     }
@@ -217,11 +221,19 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     private List<EventFullDto> mapToFullDtoWithViews(List<Event> events) {
         Map<Long, Long> views = eventViewService.getViewsForEvents(events);
         return events.stream()
-                .map(e -> {
-                    EventFullDto dto = mapper.toFullDto(e);
-                    dto.setViews(views.getOrDefault(e.getId(), 0L));
-                    return dto;
-                })
+                .map(e -> enrichEventDto(e, views))
                 .toList();
+    }
+
+    private EventFullDto enrichEventDto(Event event, Map<Long, Long> views) {
+        EventFullDto dto = mapper.toFullDto(event);
+        dto.setViews(views.getOrDefault(event.getId(), 0L));
+        dto.setConfirmedRequests(
+                event.getRequests() == null ? 0L :
+                        event.getRequests().stream()
+                                .filter(r -> r.getStatus() == RequestStatus.CONFIRMED)
+                                .count()
+        );
+        return dto;
     }
 }

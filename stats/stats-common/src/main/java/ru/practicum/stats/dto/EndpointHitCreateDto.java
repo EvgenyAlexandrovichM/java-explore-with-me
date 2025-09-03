@@ -23,7 +23,7 @@ public class EndpointHitCreateDto {
     @NotBlank
     private String uri;
 
-    @Pattern(regexp = "^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$")
+   // @Pattern(regexp = "^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$")
     private String ip;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

@@ -26,16 +26,16 @@ public class AdminCompilationController {
     }
 
     @PatchMapping("/{compId}")
-    public CompilationDto updateCompilation(@PathVariable Long id,
+    public CompilationDto updateCompilation(@PathVariable Long compId,
                                             @Valid @RequestBody UpdateCompilationRequest dto) {
-        log.info("PATCH: Calling endpoint /admin/compilations/{} - updating compilation", id);
-        return service.updateCompilation(id, dto);
+        log.info("PATCH: Calling endpoint /admin/compilations/{} - updating compilation", compId);
+        return service.updateCompilation(compId, dto);
     }
 
     @DeleteMapping("/{compId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCompilation(@PathVariable Long id) {
-        log.info("DELETE: Calling endpoint /admin/compilations/{} - deleting compilation", id);
-        service.deleteCompilation(id);
+    public void deleteCompilation(@PathVariable Long compId) {
+        log.info("DELETE: Calling endpoint /admin/compilations/{} - deleting compilation", compId);
+        service.deleteCompilation(compId);
     }
 }

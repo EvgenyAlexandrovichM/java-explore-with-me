@@ -10,6 +10,8 @@ import ru.practicum.main.event.repository.EventRepository;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.EntityAlreadyExistsException;
 import ru.practicum.main.exception.EntityNotFoundException;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 import ru.practicum.main.request.dto.mapper.RequestMapper;
 import ru.practicum.main.request.entity.Request;
@@ -19,6 +21,7 @@ import ru.practicum.main.user.entity.User;
 import ru.practicum.main.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -40,7 +43,8 @@ public class RequestServiceImpl implements RequestService {
         Event event = getEventOrThrow(eventId);
         validateNewRequest(user, event);
 
-        RequestStatus status = (event.getParticipantLimit() == 0 || !event.getRequestModeration()
+        boolean moderation = event.getRequestModeration() == null || event.getRequestModeration();
+        RequestStatus status = (event.getParticipantLimit() == 0 || !moderation
                 ? RequestStatus.CONFIRMED
                 : RequestStatus.PENDING);
 
@@ -87,19 +91,20 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ParticipationRequestDto moderateRequest(Long userId, Long eventId, Long requestId, RequestStatus status) {
-        log.info("Moderate requestId={} of the eventId={} by the initiator={}, new status={}",
-                requestId, eventId, userId, status);
+    public EventRequestStatusUpdateResult moderateRequest(Long userId,
+                                                          Long eventId,
+                                                          EventRequestStatusUpdateRequest updateRequest) {
+        log.info("Moderating requests for eventId={} by userId={}, targetStatus={}, requestIds={}",
+                eventId, userId, updateRequest.getStatus(), updateRequest.getRequestIds());
         Event event = getEventOrThrow(eventId);
         checkInitiator(event, userId);
 
-        Request request = getRequestOrThrow(requestId);
+        List<Request> requests = getRequestsForEventOrThrow(eventId, updateRequest.getRequestIds());
+        List<Request> updatedRequests = updateRequestsStatus(event, requests, updateRequest.getStatus());
 
-        if (status == RequestStatus.CONFIRMED) {
-            checkParticipantLimit(event);
-        }
-        request.setStatus(status);
-        return mapper.toDto(requestRepository.save(request));
+        requestRepository.saveAll(updatedRequests);
+
+        return buildUpdateResult(updatedRequests);
     }
 
     private Event getEventOrThrow(Long id) {
@@ -124,6 +129,50 @@ public class RequestServiceImpl implements RequestService {
                     log.warn("RequestId={} not found", id);
                     return new EntityNotFoundException("Request with id " + id + " not found");
                 });
+    }
+
+    private List<Request> getRequestsForEventOrThrow(Long eventId, List<Long> requestIds) {
+        return requestRepository.findAllById(requestIds).stream()
+                .peek(req -> validateRequestBelongsToEvent(req, eventId))
+                .toList();
+    }
+
+    private void validateRequestBelongsToEvent(Request request, Long eventId) {
+        if (!request.getEvent().getId().equals(eventId)) {
+            log.warn("Request={} doesn't belong to event={}", request.getId(), eventId);
+            throw new ConflictException("Request " + request.getId() + " doesn't belong to event " + eventId);
+        }
+    }
+
+    private List<Request> updateRequestsStatus(Event event, List<Request> requests, RequestStatus newStatus) {
+       if (newStatus == RequestStatus.CONFIRMED) {
+           requests.forEach(req -> {
+               checkParticipantLimit(event);
+               req.setStatus(RequestStatus.CONFIRMED);
+               log.trace("RequestId={} set to CONFIRMED", req.getId());
+           });
+       } else if (newStatus == RequestStatus.REJECTED) {
+           requests.forEach(req -> {
+               req.setStatus(RequestStatus.REJECTED);
+               log.trace("RequestId={} set to REJECTED", req.getId());
+           });
+       }
+       return requests;
+    }
+
+    private EventRequestStatusUpdateResult buildUpdateResult(List<Request> requests) {
+        List<ParticipationRequestDto> confirmed = mapper.toDtoList(
+                requests.stream()
+                        .filter(r -> r.getStatus() == RequestStatus.CONFIRMED)
+                        .toList()
+        );
+
+        List<ParticipationRequestDto> rejected = mapper.toDtoList(
+                requests.stream()
+                        .filter(r -> r.getStatus() == RequestStatus.REJECTED)
+                        .toList()
+        );
+        return new EventRequestStatusUpdateResult(confirmed, rejected);
     }
 
     private void checkInitiator(Event event, Long userId) {

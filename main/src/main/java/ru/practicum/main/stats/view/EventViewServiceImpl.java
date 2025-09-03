@@ -9,6 +9,7 @@ import ru.practicum.stats.dto.ViewStats;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,11 +27,17 @@ public class EventViewServiceImpl implements EventViewService {
                 .map(e -> "/events/" + e.getId())
                 .toList();
 
+        LocalDateTime start = events.stream()
+                .map(Event::getPublishedOn)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(LocalDateTime.now());
+
         List<ViewStats> stats = statsClient.getStats(
-                LocalDateTime.now().minusYears(1),
+                start,
                 LocalDateTime.now(),
                 uris,
-                false
+                true
         );
 
         return stats.stream()

@@ -1,9 +1,9 @@
 package ru.practicum.main.event.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventUpdateDto;
@@ -27,8 +27,8 @@ public class AdminEventController {
             @RequestParam(required = false) List<Long> userIds,
             @RequestParam(required = false) List<EventState> states,
             @RequestParam(required = false) List<Long> categoryIds,
-            @RequestParam(required = false) @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-            @RequestParam(required = false) @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size
             ) {

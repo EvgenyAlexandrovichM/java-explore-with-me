@@ -25,8 +25,8 @@ public class PublicCompilationController {
     }
 
     @GetMapping("/{compId}")
-    public CompilationDto getCompilationById(@PathVariable Long id) {
-        log.info("GET: Calling endpoint /compilations/{}", id);
-        return service.getCompilationById(id);
+    public CompilationDto getCompilationById(@PathVariable Long compId) {
+        log.info("GET: Calling endpoint /compilations/{}", compId);
+        return service.getCompilationById(compId);
     }
 }

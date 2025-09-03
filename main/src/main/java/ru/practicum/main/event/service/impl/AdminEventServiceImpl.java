@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +41,11 @@ public class AdminEventServiceImpl implements AdminEventService {
 
     @Override
     public List<EventFullDto> searchEvents(AdminEventParams params) {
-        Pageable pageable = PageRequest.of(params.getFrom() / params.getSize(), params.getSize());
+        Pageable pageable = PageRequest.of(
+                params.getFrom() / params.getSize(),
+                params.getSize(),
+                Sort.by(Sort.Direction.DESC, "createdOn")
+        );
 
         Specification<Event> spec = buildSpecification(params);
 
@@ -138,7 +143,7 @@ public class AdminEventServiceImpl implements AdminEventService {
                 log.warn("Event state={} cannot be rejected", event.getState());
                 throw new ConflictException("Cannot reject already published event");
             }
-            event.setState(EventState.REJECTED);
+            event.setState(EventState.CANCELED);
         }
     }
 }

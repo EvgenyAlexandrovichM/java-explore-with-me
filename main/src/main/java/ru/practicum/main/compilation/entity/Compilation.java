@@ -20,14 +20,14 @@ public class Compilation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 120)
+    @Column(nullable = false, length = 50)
     private String title;
 
     @Column(nullable = false)
     private Boolean pinned;
 
     @ManyToMany
-    @JoinTable(name = "compilation_events",
+    @JoinTable(name = "compilations_events",
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )

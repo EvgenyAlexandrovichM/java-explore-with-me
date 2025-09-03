@@ -19,6 +19,7 @@ import ru.practicum.main.event.repository.EventRepository;
 import ru.practicum.main.event.repository.specification.PublicEventSpecifications;
 import ru.practicum.main.event.service.PublicEventService;
 import ru.practicum.main.exception.EntityNotFoundException;
+import ru.practicum.main.request.entity.RequestStatus;
 import ru.practicum.main.stats.view.EventViewService;
 import ru.practicum.main.stats.hit.HitLoggingService;
 
@@ -40,7 +41,6 @@ public class PublicEventServiceImpl implements PublicEventService {
 
     @Override
     public List<EventShortDto> getEvents(PublicEventParams params, HttpServletRequest request) {
-        logRequest(request);
 
         List<Event> events = findEvents(params);
         Map<Long, Long> views = eventViewService.getViewsForEvents(events);
@@ -51,8 +51,6 @@ public class PublicEventServiceImpl implements PublicEventService {
 
     @Override
     public EventFullDto getEventById(Long eventId, HttpServletRequest request) {
-        logRequest(request);
-
         Event event = getEventOrThrow(eventId);
 
         if (event.getState() != EventState.PUBLISHED) {
@@ -60,7 +58,10 @@ public class PublicEventServiceImpl implements PublicEventService {
             throw new EntityNotFoundException("Event " + event + " not found");
         }
 
-        return mapper.toFullDto(event);
+        logRequest(request);
+
+        Map<Long, Long> views = eventViewService.getViewsForEvents(List.of(event));
+        return enrichEventDto(event, views);
     }
 
     private Event getEventOrThrow(Long id) {
@@ -100,6 +101,18 @@ public class PublicEventServiceImpl implements PublicEventService {
                     return dto;
                 })
                 .toList();
+    }
+
+    private EventFullDto enrichEventDto(Event event, Map<Long, Long> views) {
+        EventFullDto dto = mapper.toFullDto(event);
+        dto.setViews(views.getOrDefault(event.getId(), 0L));
+        dto.setConfirmedRequests(
+                event.getRequests() == null ? 0L :
+                        event.getRequests().stream()
+                                .filter(r -> r.getStatus() == RequestStatus.CONFIRMED)
+                                .count()
+        );
+        return dto;
     }
 
     private List<EventShortDto> sortDto(List<EventShortDto> dto, String sort) {

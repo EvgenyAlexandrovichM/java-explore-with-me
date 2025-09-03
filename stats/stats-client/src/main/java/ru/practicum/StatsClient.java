@@ -36,8 +36,8 @@ public class StatsClient {
 
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(serverUrl + "/stats")
-                .queryParam("start", start.format(DateTimeUtils.FORMATTER))
-                .queryParam("end", end.format(DateTimeUtils.FORMATTER))
+                .queryParam("start", start.format(DateTimeUtils.FORMATTER).replace(" ", "+")) //добавил сюда костыль(т.к. Spring MVC не умеет парсить пробел, парсим "+")
+                .queryParam("end", end.format(DateTimeUtils.FORMATTER).replace(" ", "+"))
                 .queryParam("unique", unique);
 
         if (uris != null && !uris.isEmpty()) {

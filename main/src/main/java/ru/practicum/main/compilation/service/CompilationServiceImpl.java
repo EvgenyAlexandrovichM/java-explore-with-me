@@ -18,6 +18,7 @@ import ru.practicum.main.event.entity.Event;
 import ru.practicum.main.event.repository.EventRepository;
 import ru.practicum.main.exception.EntityNotFoundException;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +39,8 @@ public class CompilationServiceImpl implements CompilationService {
 
         if (dto.getEvents() != null && !dto.getEvents().isEmpty()) {
             compilation.setEvents(loadEvents(dto.getEvents()));
+        } else {
+            compilation.setEvents(Collections.emptySet());
         }
         Compilation saved = compilationRepository.save(compilation);
         log.info("CompilationId={} saved successfully", saved.getId());
