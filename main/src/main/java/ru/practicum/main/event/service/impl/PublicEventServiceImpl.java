@@ -47,6 +47,8 @@ public class PublicEventServiceImpl implements PublicEventService {
         Map<Long, Long> views = eventViewService.getViewsForEvents(events);
 
         List<EventShortDto> dto = mapToDto(events, views);
+
+        logRequest(request);
         return sortDto(dto, params.getSort());
     }
 

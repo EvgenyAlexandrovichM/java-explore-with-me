@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
-public class GlobalExceptionHandler {
+public class MainExceptionHandler {
 
     private ApiError buildError(HttpStatus status, String reason, String message, List<String> errors) {
         return ApiError.builder()
@@ -64,5 +64,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(
                 buildError(HttpStatus.BAD_REQUEST, "Validation failed", "Invalid fields", errors),
                 HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiError> handleAll(RuntimeException ex) {
+        log.warn("500 Internal server error: {}", ex.getMessage());
+        return new ResponseEntity<>(
+                buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", ex.getMessage(), null),
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
