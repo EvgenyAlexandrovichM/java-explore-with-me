@@ -1,13 +1,13 @@
-package ru.practicum.stats.handler;
+package ru.practicum.stats.exception.handler;
 
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.stats.exception.ApiError;
+import ru.practicum.stats.exception.BadRequestException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,15 +26,11 @@ public class StatsExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ApiError> handleMissingParams(MissingServletRequestParameterException ex) {
-        log.warn("Returning BAD_REQUEST with status code {}", HttpStatus.BAD_REQUEST.value());
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ApiError> handleBadRequest(BadRequestException ex) {
+        log.warn("400 Bad Request: {}", ex.getMessage());
         return new ResponseEntity<>(
-                buildError(HttpStatus.BAD_REQUEST,
-                        "Missing required parameter",
-                        "Required request parameter '" + ex.getParameterName() + "' is not present",
-                        null),
-                HttpStatus.BAD_REQUEST
-        );
+                buildError(HttpStatus.BAD_REQUEST, "Invalid data", ex.getMessage(), null),
+                HttpStatus.BAD_REQUEST);
     }
 }

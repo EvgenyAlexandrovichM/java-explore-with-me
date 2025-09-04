@@ -9,6 +9,7 @@ import ru.practicum.stats.dto.EndpointHitResponseDto;
 import ru.practicum.stats.dto.ViewStats;
 import ru.practicum.stats.dto.mapper.StatsMapper;
 import ru.practicum.stats.entity.EndpointHit;
+import ru.practicum.stats.exception.BadRequestException;
 import ru.practicum.stats.repository.StatsRepository;
 
 
@@ -39,6 +40,10 @@ public class StatsServiceImpl implements StatsService {
                                     LocalDateTime end,
                                     List<String> uris,
                                     boolean unique) {
+        if (start.isAfter(end)) {
+            log.warn("Start date={} is after end date={}", start, end);
+            throw new BadRequestException("Start date must be before end date");
+        }
         return repository.findStatsByCriteria(start, end, uris, unique);
     }
 }
