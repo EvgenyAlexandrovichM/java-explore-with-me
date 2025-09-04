@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.main.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
-import ru.practicum.main.request.entity.RequestStatus;
 import ru.practicum.main.request.service.RequestService;
 
 import java.util.List;

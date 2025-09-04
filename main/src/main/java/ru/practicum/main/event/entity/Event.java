@@ -2,7 +2,6 @@ package ru.practicum.main.event.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.main.category.entity.Category;
@@ -17,7 +16,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+
 @Entity
 @Table(name = "events")
 public class Event {

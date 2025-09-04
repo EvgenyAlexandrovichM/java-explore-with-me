@@ -61,7 +61,8 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         event.setCategory(getCategoryOrThrow(dto.getCategory()));
         event.setState(EventState.PENDING);
         event.setCreatedOn(LocalDateTime.now());
-
+        event.setParticipantLimit(dto.getParticipantLimit() == null ? 0L : dto.getParticipantLimit());
+        event.setRequestModeration(dto.getRequestModeration() == null ? true : dto.getRequestModeration());
         log.info("Event with id={} created", event.getId());
         return mapper.toFullDto(eventRepository.save(event));
     }

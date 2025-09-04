@@ -21,7 +21,6 @@ import ru.practicum.main.user.entity.User;
 import ru.practicum.main.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

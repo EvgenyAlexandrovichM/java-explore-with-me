@@ -26,6 +26,8 @@ public interface EventMapper {
     @Mapping(target = "initiator", ignore = true)
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "requests", ignore = true)
+    @Mapping(target = "participantLimit", ignore = true)
+    @Mapping(target = "requestModeration", ignore = true)
     @Mapping(target = "location", source = "location", qualifiedByName = "toLocation")
     Event fromNewEventDto(NewEventDto dto);
 

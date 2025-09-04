@@ -24,10 +24,13 @@ import ru.practicum.main.event.repository.specification.AdminEventSpecifications
 import ru.practicum.main.event.service.AdminEventService;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.EntityNotFoundException;
+import ru.practicum.main.request.repository.RequestRepository;
 
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +40,7 @@ public class AdminEventServiceImpl implements AdminEventService {
 
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
+    private final RequestRepository requestRepository;
     private final EventMapper mapper;
 
     @Override
@@ -49,11 +53,10 @@ public class AdminEventServiceImpl implements AdminEventService {
 
         Specification<Event> spec = buildSpecification(params);
 
-        List<Event> events = eventRepository.findAll(spec, pageable).getContent();
+        List<Event> events = findEvents(spec, pageable);
 
-        return events.stream()
-                .map(mapper::toFullDto)
-                .toList();
+        Map<Long, Long> confirmedMap = getConfirmedRequestMap(events);
+        return mapToFullDtoWithConfirmed(events, confirmedMap);
     }
 
     @Override
@@ -106,7 +109,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         if (dto.getEventDate() != null) event.setEventDate(dto.getEventDate());
         if (dto.getPaid() != null) event.setPaid(dto.getPaid());
         if (dto.getParticipantLimit() != null) event.setParticipantLimit(dto.getParticipantLimit());
-        if (dto.getRequestModeration() != null) event.setRequestModeration(dto.getRequestModeration());
+        if (dto.getRequestModeration() != null) event.setRequestModeration(true);
     }
 
     private void updateCategoryIfNeeded(Event event, Long categoryId) {
@@ -145,5 +148,33 @@ public class AdminEventServiceImpl implements AdminEventService {
             }
             event.setState(EventState.CANCELED);
         }
+    }
+
+    private List<Event> findEvents(Specification<Event> spec, Pageable pageable) {
+        return eventRepository.findAll(spec, pageable).getContent();
+    }
+
+    private Map<Long, Long> getConfirmedRequestMap(List<Event> events) {
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .toList();
+
+        List<Object[]> counts = requestRepository.countConfirmedGrouped(eventIds);
+
+        return counts.stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
+    }
+
+    private List<EventFullDto> mapToFullDtoWithConfirmed(List<Event> events, Map<Long, Long> confirmedMap) {
+        return events.stream()
+                .map(event -> {
+                    EventFullDto dto = mapper.toFullDto(event);
+                    dto.setConfirmedRequests(confirmedMap.getOrDefault(event.getId(), 0L));
+                    return dto;
+                })
+                .toList();
     }
 }
