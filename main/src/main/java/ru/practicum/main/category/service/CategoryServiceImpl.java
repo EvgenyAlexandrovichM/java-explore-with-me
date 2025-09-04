@@ -10,6 +10,8 @@ import ru.practicum.main.category.dto.NewCategoryDto;
 import ru.practicum.main.category.dto.mapper.CategoryMapper;
 import ru.practicum.main.category.entity.Category;
 import ru.practicum.main.category.repository.CategoryRepository;
+import ru.practicum.main.event.repository.EventRepository;
+import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.EntityAlreadyExistsException;
 import ru.practicum.main.exception.EntityNotFoundException;
 
@@ -22,6 +24,7 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
     private final CategoryMapper mapper;
 
     @Override
@@ -51,6 +54,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategory(Long id) {
         getCategoryOrThrow(id);
+        existsByCategoryId(id);
         categoryRepository.deleteById(id);
         log.info("CategoryId={} deleted", id);
     }
@@ -77,6 +81,14 @@ public class CategoryServiceImpl implements CategoryService {
                     log.warn("CategoryId={} not found", id);
                     return new EntityNotFoundException("Category with id " + id + " not found");
                 });
+    }
+
+    private void existsByCategoryId(Long id) {
+        if (eventRepository.existsByCategoryId(id)) {
+            log.warn("Cannot delete categoryId={} its linked to eventId", id);
+            throw new ConflictException(
+                    "Cannot delete category with id " + id + " because it is linked to existing events");
+        }
     }
 
     private void ensureUniqueName(String name) {

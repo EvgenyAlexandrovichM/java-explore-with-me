@@ -31,7 +31,7 @@ public class AdminEventController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size
-            ) {
+    ) {
         AdminEventParams params = AdminEventParams.builder()
                 .userIds(userIds)
                 .states(states)

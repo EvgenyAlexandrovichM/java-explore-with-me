@@ -51,8 +51,8 @@ public class PublicEventController {
 
     @GetMapping("/{id}")
     public EventFullDto getEventById(@PathVariable Long id, HttpServletRequest request) {
-       log.info("Calling to endpoint /events/{id} for eventId={}", id);
-       return service.getEventById(id, request);
+        log.info("Calling to endpoint /events/{id} for eventId={}", id);
+        return service.getEventById(id, request);
     }
 
 }

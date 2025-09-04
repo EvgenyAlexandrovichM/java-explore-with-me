@@ -13,8 +13,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PrivateEventParams {
+
     private Long userId;
+
     private List<EventState> states;
+
     private int from;
+
     private int size;
 }

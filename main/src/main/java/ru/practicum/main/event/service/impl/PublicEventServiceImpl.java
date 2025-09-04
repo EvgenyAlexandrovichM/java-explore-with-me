@@ -18,6 +18,7 @@ import ru.practicum.main.event.entity.EventState;
 import ru.practicum.main.event.repository.EventRepository;
 import ru.practicum.main.event.repository.specification.PublicEventSpecifications;
 import ru.practicum.main.event.service.PublicEventService;
+import ru.practicum.main.exception.BadRequestException;
 import ru.practicum.main.exception.EntityNotFoundException;
 import ru.practicum.main.request.entity.RequestStatus;
 import ru.practicum.main.stats.view.EventViewService;
@@ -41,7 +42,7 @@ public class PublicEventServiceImpl implements PublicEventService {
 
     @Override
     public List<EventShortDto> getEvents(PublicEventParams params, HttpServletRequest request) {
-
+        validateDateRange(params);
         List<Event> events = findEvents(params);
         Map<Long, Long> views = eventViewService.getViewsForEvents(events);
 
@@ -113,6 +114,15 @@ public class PublicEventServiceImpl implements PublicEventService {
                                 .count()
         );
         return dto;
+    }
+
+    private void validateDateRange(PublicEventParams params) {
+        if (params.getRangeStart() != null
+                && params.getRangeEnd() != null
+                && params.getRangeEnd().isBefore(params.getRangeStart())) {
+            log.warn("Invalid params: rangeEnd={} before rangeStart={}", params.getRangeEnd(), params.getRangeStart());
+            throw new BadRequestException("rangeEnd must be after rangeStart");
+        }
     }
 
     private List<EventShortDto> sortDto(List<EventShortDto> dto, String sort) {

@@ -8,4 +8,7 @@ import ru.practicum.main.event.entity.Event;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
+
+    boolean existsByCategoryId(Long id);
+
 }

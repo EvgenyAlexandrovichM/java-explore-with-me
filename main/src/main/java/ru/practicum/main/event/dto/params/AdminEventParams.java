@@ -16,10 +16,16 @@ import java.util.List;
 public class AdminEventParams {
 
     private List<Long> userIds;
+
     private List<EventState> states;
+
     private List<Long> categoryIds;
+
     private LocalDateTime rangeStart;
+
     private LocalDateTime rangeEnd;
+
     private int from;
+
     private int size;
 }

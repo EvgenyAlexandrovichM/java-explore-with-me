@@ -144,19 +144,40 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private List<Request> updateRequestsStatus(Event event, List<Request> requests, RequestStatus newStatus) {
-       if (newStatus == RequestStatus.CONFIRMED) {
-           requests.forEach(req -> {
-               checkParticipantLimit(event);
-               req.setStatus(RequestStatus.CONFIRMED);
-               log.trace("RequestId={} set to CONFIRMED", req.getId());
-           });
-       } else if (newStatus == RequestStatus.REJECTED) {
-           requests.forEach(req -> {
-               req.setStatus(RequestStatus.REJECTED);
-               log.trace("RequestId={} set to REJECTED", req.getId());
-           });
-       }
-       return requests;
+        requests.forEach(req -> validateStatusChange(req, newStatus));
+
+        if (newStatus == RequestStatus.CONFIRMED) {
+            requests.forEach(req -> {
+                checkParticipantLimit(event);
+                req.setStatus(RequestStatus.CONFIRMED);
+                log.trace("RequestId={} set to CONFIRMED", req.getId());
+            });
+        } else if (newStatus == RequestStatus.REJECTED) {
+            requests.forEach(req -> {
+                req.setStatus(RequestStatus.REJECTED);
+                log.trace("RequestId={} set to REJECTED", req.getId());
+            });
+        }
+        return requests;
+    }
+
+    private void validateStatusChange(Request request, RequestStatus newStatus) {
+        RequestStatus currentStatus = request.getStatus();
+
+        if (currentStatus == RequestStatus.CONFIRMED && newStatus == RequestStatus.REJECTED) {
+            log.warn("Cannot change requestId={} from CONFIRMED to REJECTED", request.getId());
+            throw new ConflictException(
+                    "Cannot change status from CONFIRMED to REJECTED for request with id " + request.getId()
+            );
+        }
+
+        if (currentStatus == RequestStatus.REJECTED && newStatus == RequestStatus.CONFIRMED) {
+            log.warn("Cannot change requestId={} from REJECTED to CONFIRMED", request.getId());
+            throw new ConflictException(
+                    "Cannot change status from REJECTED to CONFIRMED for request with id " + request.getId()
+            );
+
+        }
     }
 
     private EventRequestStatusUpdateResult buildUpdateResult(List<Request> requests) {
