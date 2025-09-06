@@ -1,15 +1,30 @@
 services:
+  main-db:
+    image: postgres:16.1
+    container_name: main-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: main_db
+      POSTGRES_USER: main_user
+      POSTGRES_PASSWORD: 123456
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U main_user -d main_db" ]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+
   stats-db:
     image: postgres:16.1
     container_name: stats-db
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: stats
-      POSTGRES_USER: user
+      POSTGRES_DB: stats_db
+      POSTGRES_USER: stats_user
       POSTGRES_PASSWORD: 123456
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U user -d stats" ]
+      test: [ "CMD-SHELL", "pg_isready -U stats_user -d stats_db" ]
       interval: 10s
       retries: 5
       start_period: 10s
@@ -22,11 +37,16 @@ services:
     depends_on:
       - stats-db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats
-      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats_db
+      SPRING_DATASOURCE_USERNAME: stats_user
       SPRING_DATASOURCE_PASSWORD: 123456
   ewm-service:
     build: ./main
     container_name: main-service
     ports:
       - "8080:8080"
+    depends_on:
+      - main-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://main-db:5432/main_db
+      STATS_SERVER_URL: http://stats-server:9090
