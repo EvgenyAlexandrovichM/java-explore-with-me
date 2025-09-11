@@ -63,8 +63,9 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         event.setCreatedOn(LocalDateTime.now());
         event.setParticipantLimit(dto.getParticipantLimit());
         event.setRequestModeration(dto.getRequestModeration());
-        log.info("Event with id={} created", event.getId());
-        return mapper.toFullDto(eventRepository.save(event));
+        Event saved = eventRepository.save(event);
+        log.info("Event with id={} created", saved.getId());
+        return mapper.toFullDto(saved);
     }
 
     @Override
@@ -98,14 +99,13 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     @Override
     public EventFullDto getUserEvent(Long userId, Long eventId, HttpServletRequest request) {
         getUserOrThrow(userId);
-        Event event = getEventOrThrow(eventId);
+        Event event = getEventWithPublishedCommentsOrThrow(eventId);
         checkOwnership(event, userId);
 
         logRequest(request);
 
-        EventFullDto dto = mapper.toFullDto(event);
-        dto.setViews(getViewsForSingleEvent(event));
-        return dto;
+        Map<Long, Long> views = eventViewService.getViewsForEvents(List.of(event));
+        return enrichEventDtoWithComments(event, views);
     }
 
     @Override
@@ -119,10 +119,30 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         return mapToFullDtoWithViews(evetsPage.getContent());
     }
 
+    private EventFullDto enrichEventDtoWithComments(Event event, Map<Long, Long> views) {
+        EventFullDto dto = mapper.toFullDtoWithPublishedComments(event);
+        dto.setViews(views.getOrDefault(event.getId(), 0L));
+        dto.setConfirmedRequests(
+                event.getRequests() == null ? 0L :
+                        event.getRequests().stream()
+                                .filter(r -> r.getStatus() == RequestStatus.CONFIRMED)
+                                .count()
+        );
+        return dto;
+    }
+
+    private Event getEventWithPublishedCommentsOrThrow(Long id) {
+        return eventRepository.findWithPublishedCommentsById(id)
+                .orElseThrow(() -> {
+                    log.warn("EventId={} not found (with comments)", id);
+                    return new EntityNotFoundException("Event with id " + id + " not found");
+                });
+    }
+
     private Event getEventOrThrow(Long id) {
         return eventRepository.findById(id)
                 .orElseThrow(() -> {
-                    log.warn("EventId={} not found", id);
+                    log.warn("EventId={} not found (without comments)", id);
                     return new EntityNotFoundException("Event with id " + id + " not found");
                 });
     }
@@ -214,6 +234,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                 params.getSize(), Sort.by("eventDate").descending());
     }
 
+    @SuppressWarnings("unused")
     private long getViewsForSingleEvent(Event event) {
         return eventViewService.getViewsForEvents(List.of(event))
                 .getOrDefault(event.getId(), 0L);

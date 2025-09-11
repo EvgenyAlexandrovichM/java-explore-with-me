@@ -31,6 +31,12 @@ public interface EventMapper {
     @Mapping(target = "location", source = "location", qualifiedByName = "toLocation")
     Event fromNewEventDto(NewEventDto dto);
 
+    @Mapping(target = "comments", source = "publishedComments")
+    EventFullDto toFullDtoWithPublishedComments(Event event);
+
+    @Mapping(target = "comments", source = "comments")
+    EventFullDto toFullDtoWithComments(Event event);
+
     @Named("toLocation")
     default Location toLocation(LocationDto dto) {
         if (dto == null) return null;

@@ -103,7 +103,7 @@ public class PrivateCommentServiceImpl implements PrivateCommentService {
         Comment comment = mapper.toEntity(dto);
         comment.setEvent(event);
         comment.setAuthor(author);
-        comment.setStatus(CommentStatus.PUBLISHED);
+        comment.setStatus(CommentStatus.PENDING);
         comment.setCreated(LocalDateTime.now());
         return comment;
     }
@@ -116,7 +116,7 @@ public class PrivateCommentServiceImpl implements PrivateCommentService {
     }
 
     private void validateEditTime(Comment comment) {
-        long minutesSinceCreation = ChronoUnit.MICROS.between(comment.getCreated(), LocalDateTime.now());
+        long minutesSinceCreation = ChronoUnit.MINUTES.between(comment.getCreated(), LocalDateTime.now());
         if (minutesSinceCreation > EDIT_TIME_LIMIT_MINUTES) {
             log.warn("Edit time exceeded for commentId={}", comment.getId());
             throw new ConflictException("Comment updating is available for 15 minutes");

@@ -2,7 +2,9 @@ package ru.practicum.main.event.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 import ru.practicum.main.category.entity.Category;
+import ru.practicum.main.comment.entity.Comment;
 import ru.practicum.main.event.entity.location.Location;
 import ru.practicum.main.request.entity.Request;
 import ru.practicum.main.user.entity.User;
@@ -68,4 +70,11 @@ public class Event {
 
     @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
     private List<Request> requests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
+    @SQLRestriction("status = 'PUBLISHED'")
+    private List<Comment> publishedComments = new ArrayList<>();
 }

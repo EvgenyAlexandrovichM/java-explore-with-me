@@ -54,7 +54,7 @@ public class PublicEventServiceImpl implements PublicEventService {
 
     @Override
     public EventFullDto getEventById(Long eventId, HttpServletRequest request) {
-        Event event = getEventOrThrow(eventId);
+        Event event = getEventOrThrowWithPublishedComments(eventId);
 
         if (event.getState() != EventState.PUBLISHED) {
             log.warn("Event with id={} not found", event.getId());
@@ -64,11 +64,11 @@ public class PublicEventServiceImpl implements PublicEventService {
         logRequest(request);
 
         Map<Long, Long> views = eventViewService.getViewsForEvents(List.of(event));
-        return enrichEventDto(event, views);
+        return enrichEventDtoWithPublishedComments(event, views);
     }
 
-    private Event getEventOrThrow(Long id) {
-        return eventRepository.findById(id)
+    private Event getEventOrThrowWithPublishedComments(Long id) {
+        return eventRepository.findWithPublishedCommentsById(id)
                 .orElseThrow(() -> {
                     log.warn("EventId={} not found", id);
                     return new EntityNotFoundException("Event with id " + id + " not found");
@@ -106,8 +106,8 @@ public class PublicEventServiceImpl implements PublicEventService {
                 .toList();
     }
 
-    private EventFullDto enrichEventDto(Event event, Map<Long, Long> views) {
-        EventFullDto dto = mapper.toFullDto(event);
+    private EventFullDto enrichEventDtoWithPublishedComments(Event event, Map<Long, Long> views) {
+        EventFullDto dto = mapper.toFullDtoWithPublishedComments(event);
         dto.setViews(views.getOrDefault(event.getId(), 0L));
         dto.setConfirmedRequests(
                 event.getRequests() == null ? 0L :
