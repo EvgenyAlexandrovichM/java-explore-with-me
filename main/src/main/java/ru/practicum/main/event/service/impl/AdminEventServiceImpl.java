@@ -78,7 +78,7 @@ public class AdminEventServiceImpl implements AdminEventService {
     }
 
     private Event getEventOrThrow(Long id) {
-        return eventRepository.findById(id)
+        return eventRepository.findWithAllCommentsById(id)
                 .orElseThrow(() -> {
                     log.warn("EventId={} not found", id);
                     return new EntityNotFoundException("Event with id " + id + " not found");
