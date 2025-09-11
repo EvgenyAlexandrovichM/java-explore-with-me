@@ -42,7 +42,7 @@
 							"var commentId = pm.response.json().id;\r",
 							"pm.environment.set(\"commentId\", commentId);\r",
 							"\r",
-							"console.log(\" commentId сохранён:\", commentId);\r",
+							"console.log(\"💾 commentId сохранён:\", commentId);\r",
 							""
 						],
 						"type": "text/javascript",
@@ -144,11 +144,18 @@
 							"pm.test(\"200 OK\", () => pm.response.to.have.status(200));\r",
 							"pm.test(\"Комментарий обновлён\", () => {\r",
 							"    const json = pm.response.json();\r",
-							"    pm.expect(json.id).to.eql(parseInt(pm.environment.get(\"commentId\")));\r",
+							"    pm.expect(json.id).to.eql(parseInt(pm.environment.get(\"authorCommentId\")));\r",
 							"});"
 						],
 						"type": "text/javascript",
 						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
 					}
 				}
 			],
@@ -165,7 +172,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/{{userId}}/comments/{{commentId}}",
+					"raw": "{{baseUrl}}/users/{{userId}}/comments/{{authorCommentId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -173,7 +180,7 @@
 						"users",
 						"{{userId}}",
 						"comments",
-						"{{commentId}}"
+						"{{authorCommentId}}"
 					]
 				}
 			},
@@ -222,7 +229,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/{{otherUserId}}/comments/{{commentId}}",
+					"raw": "{{baseUrl}}/users/{{otherUserId}}/comments/{{authorCommentId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -230,7 +237,7 @@
 						"users",
 						"{{otherUserId}}",
 						"comments",
-						"{{commentId}}"
+						"{{authorCommentId}}"
 					]
 				}
 			},
@@ -255,6 +262,13 @@
 						"type": "text/javascript",
 						"packages": {}
 					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
 				}
 			],
 			"request": {
@@ -270,7 +284,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/{{userId}}/comments/9999",
+					"raw": "{{baseUrl}}/users/{{userId}}/comments/{{nonExistentCommentId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -278,7 +292,7 @@
 						"users",
 						"{{userId}}",
 						"comments",
-						"9999"
+						"{{nonExistentCommentId}}"
 					]
 				}
 			},
@@ -299,20 +313,27 @@
 						"type": "text/javascript",
 						"packages": {}
 					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
 				}
 			],
 			"request": {
 				"method": "PATCH",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/admin/comments/{{commentId}}/status?status=PUBLISHED",
+					"raw": "{{baseUrl}}/admin/comments/{{authorCommentId}}/status?status=PUBLISHED",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"admin",
 						"comments",
-						"{{commentId}}",
+						"{{authorCommentId}}",
 						"status"
 					],
 					"query": [
@@ -349,14 +370,14 @@
 				"method": "PATCH",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/admin/comments/9999/status?status=PUBLISHED",
+					"raw": "{{baseUrl}}/admin/comments/{{nonExistentCommentId}}/status?status=PUBLISHED",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"admin",
 						"comments",
-						"9999",
+						"{{nonExistentCommentId}}",
 						"status"
 					],
 					"query": [
@@ -397,7 +418,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/admin/comments?eventId={{eventId}}&authorId={{authorId}}&status=PENDING&from=0&size=10",
+					"raw": "{{baseUrl}}/admin/comments?eventId={{eventId}}&authorId={{authorId}}&from=0&size=10",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -413,10 +434,6 @@
 						{
 							"key": "authorId",
 							"value": "{{authorId}}"
-						},
-						{
-							"key": "status",
-							"value": "PENDING"
 						},
 						{
 							"key": "from",
@@ -441,7 +458,7 @@
 							"pm.test(\"200 OK\", () => pm.response.to.have.status(200));\r",
 							"pm.test(\"Комментарий содержит нужные поля\", () => {\r",
 							"    const c = pm.response.json();\r",
-							"    pm.expect(c).to.have.property(\"id\", parseInt(pm.environment.get(\"commentId\")));\r",
+							"    pm.expect(c).to.have.property(\"id\", parseInt(pm.environment.get(\"authorCommentId\")));\r",
 							"    pm.expect(c).to.have.property(\"text\");\r",
 							"    pm.expect(c).to.have.property(\"status\");\r",
 							"});"
@@ -455,14 +472,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/admin/comments/{{commentId}}",
+					"raw": "{{baseUrl}}/admin/comments/{{authorCommentId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"admin",
 						"comments",
-						"{{commentId}}"
+						"{{authorCommentId}}"
 					]
 				}
 			},
@@ -498,14 +515,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/admin/comments/9999",
+					"raw": "{{baseUrl}}/admin/comments/{{nonExistentCommentId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"admin",
 						"comments",
-						"9999"
+						"{{nonExistentCommentId}}"
 					]
 				}
 			},
@@ -581,7 +598,7 @@
 							"\r",
 							"pm.test(\"Комментарий содержит нужные поля\", () => {\r",
 							"    const c = pm.response.json();\r",
-							"    pm.expect(c).to.have.property(\"id\", parseInt(pm.environment.get(\"commentId\")));\r",
+							"    pm.expect(c).to.have.property(\"id\", parseInt(pm.environment.get(\"authorCommentId\")));\r",
 							"    pm.expect(c).to.have.property(\"text\");\r",
 							"    pm.expect(c).to.have.property(\"authorName\");\r",
 							"    pm.expect(c).to.have.property(\"created\");\r",
@@ -596,7 +613,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/events/{{eventId}}/comments/{{commentId}}",
+					"raw": "{{baseUrl}}/events/{{eventId}}/comments/{{authorCommentId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -604,7 +621,7 @@
 						"events",
 						"{{eventId}}",
 						"comments",
-						"{{commentId}}"
+						"{{authorCommentId}}"
 					]
 				}
 			},
@@ -791,6 +808,20 @@
 			"name": "Private Получение комментариев события",
 			"event": [
 				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(\"ENV baseUrl:\", pm.environment.get(\"baseUrl\"));\r",
+							"console.log(\"ENV userId:\", pm.environment.get(\"userId\"));\r",
+							"console.log(\"COLL baseUrl:\", pm.collectionVariables.get(\"baseUrl\"));\r",
+							"console.log(\"COLL userId:\", pm.collectionVariables.get(\"userId\"));\r",
+							"console.log(\"RESOLVED URL:\", pm.variables.replaceIn(\"{{baseUrl}}/users/{{userId}}/comments?from=0&size=10\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
 					"listen": "test",
 					"script": {
 						"exec": [
@@ -810,16 +841,6 @@
 							"        pm.expect(c.eventId).to.eql(pm.environment.get(\"eventId\"));\r",
 							"    });\r",
 							"});\r",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
 							""
 						],
 						"type": "text/javascript",
@@ -880,7 +901,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/users/{{otherUserId}}/comments/{{commentId}}",
+					"raw": "{{baseUrl}}/users/{{otherUserId}}/comments/{{authorCommentId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -888,7 +909,7 @@
 						"users",
 						"{{otherUserId}}",
 						"comments",
-						"{{commentId}}"
+						"{{authorCommentId}}"
 					]
 				}
 			},
@@ -916,7 +937,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/users/{{userId}}/comments/99999",
+					"raw": "{{baseUrl}}/users/{{userId}}/comments/{{nonExistentCommentId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -924,7 +945,7 @@
 						"users",
 						"{{userId}}",
 						"comments",
-						"99999"
+						"{{nonExistentCommentId}}"
 					]
 				}
 			},
@@ -954,14 +975,14 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/admin/comments/9999",
+					"raw": "{{baseUrl}}/admin/comments/{{nonExistentCommentId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"admin",
 						"comments",
-						"9999"
+						"{{nonExistentCommentId}}"
 					]
 				}
 			},
@@ -1028,7 +1049,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/users/{{userId}}/comments/{{commentId}}",
+					"raw": "{{baseUrl}}/users/{{userId}}/comments/{{authorCommentId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -1036,7 +1057,7 @@
 						"users",
 						"{{userId}}",
 						"comments",
-						"{{commentId}}"
+						"{{authorCommentId}}"
 					]
 				}
 			},
@@ -1055,7 +1076,6 @@
 					"}\r",
 					"const baseUrl = pm.environment.get(\"baseUrl\");\r",
 					"\r",
-					"\r",
 					"function send(method, path, body, cb) {\r",
 					"    pm.sendRequest({\r",
 					"        url: baseUrl + path,\r",
@@ -1069,7 +1089,6 @@
 					"        cb(null, res.json());\r",
 					"    });\r",
 					"}\r",
-					"\r",
 					"function randomUser() {\r",
 					"    return {\r",
 					"        name: pm.variables.replaceIn('{{$randomFullName}}'),\r",
@@ -1100,73 +1119,68 @@
 					"    return { text: pm.variables.replaceIn('{{$randomLoremSentence}}') };\r",
 					"}\r",
 					"\r",
-					"\r",
 					"[\r",
-					"  \"userId\",\"categoryId\",\r",
+					"  \"userId\",\"otherUserId\",\"categoryId\",\r",
 					"  \"eventId\",\"secondEventId\",\r",
-					"  \"commentId\",\"adminCommentId\",\r",
+					"  \"authorCommentId\",\"foreignCommentId\",\"adminCommentId\",\r",
 					"  \"nonExistentCommentId\",\"authorId\"\r",
 					"].forEach(k => pm.environment.unset(k));\r",
 					"\r",
-					"\r",
 					"const tasks = [\r",
-					"   \r",
-					"    function(cb) {\r",
-					"        send(\"POST\", \"/admin/users\", randomUser(), (e, user) => {\r",
-					"            if (!e) {\r",
-					"                pm.environment.set(\"userId\", user.id);\r",
-					"                pm.environment.set(\"authorId\", user.id);\r",
-					"            }\r",
+					"    cb => send(\"POST\", \"/admin/users\", randomUser(), (e, user) => {\r",
+					"        if (!e) {\r",
+					"            pm.environment.set(\"userId\", user.id);\r",
+					"            pm.environment.set(\"authorId\", user.id);\r",
+					"        }\r",
+					"        cb(e);\r",
+					"    }),\r",
+					"    cb => send(\"POST\", \"/admin/users\", randomUser(), (e, user) => {\r",
+					"        if (!e) pm.environment.set(\"otherUserId\", user.id);\r",
+					"        cb(e);\r",
+					"    }),\r",
+					"    cb => send(\"POST\", \"/admin/categories\", randomCategory(), (e, cat) => {\r",
+					"        if (!e) pm.environment.set(\"categoryId\", cat.id);\r",
+					"        cb(e);\r",
+					"    }),\r",
+					"    cb => send(\"POST\", `/users/${pm.environment.get(\"userId\")}/events`,\r",
+					"        randomEvent(pm.environment.get(\"categoryId\")),\r",
+					"        (e, ev) => {\r",
+					"            if (!e) pm.environment.set(\"eventId\", ev.id);\r",
 					"            cb(e);\r",
-					"        });\r",
-					"    },\r",
-					"\r",
-					"    function(cb) {\r",
-					"        send(\"POST\", \"/admin/categories\", randomCategory(), (e, cat) => {\r",
-					"            if (!e) pm.environment.set(\"categoryId\", cat.id);\r",
+					"        }\r",
+					"    ),\r",
+					"    cb => send(\"POST\", `/users/${pm.environment.get(\"userId\")}/events`,\r",
+					"        randomEvent(pm.environment.get(\"categoryId\")),\r",
+					"        (e, ev) => {\r",
+					"            if (!e) pm.environment.set(\"secondEventId\", ev.id);\r",
 					"            cb(e);\r",
-					"        });\r",
-					"    },\r",
-					"\r",
-					"    function(cb) {\r",
-					"        send(\"POST\", `/users/${pm.environment.get(\"userId\")}/events`,\r",
-					"            randomEvent(pm.environment.get(\"categoryId\")),\r",
-					"            (e, ev) => {\r",
-					"                if (!e) pm.environment.set(\"eventId\", ev.id);\r",
-					"                cb(e);\r",
-					"            }\r",
-					"        );\r",
-					"    },\r",
-					"\r",
-					"    function(cb) {\r",
-					"        send(\"POST\", `/users/${pm.environment.get(\"userId\")}/events`,\r",
-					"            randomEvent(pm.environment.get(\"categoryId\")),\r",
-					"            (e, ev) => {\r",
-					"                if (!e) pm.environment.set(\"secondEventId\", ev.id);\r",
-					"                cb(e);\r",
-					"            }\r",
-					"        );\r",
-					"    },\r",
-					"\r",
-					"    function(cb) {\r",
-					"        send(\"POST\", `/users/${pm.environment.get(\"userId\")}/comments/events/${pm.environment.get(\"eventId\")}`,\r",
-					"            randomComment(),\r",
-					"            (e, com) => {\r",
-					"                if (!e) pm.environment.set(\"commentId\", com.id);\r",
-					"                cb(e);\r",
-					"            }\r",
-					"        );\r",
-					"    },\r",
-					"\r",
-					"    function(cb) {\r",
-					"        send(\"POST\", `/users/${pm.environment.get(\"userId\")}/comments/events/${pm.environment.get(\"secondEventId\")}`,\r",
-					"            randomComment(),\r",
-					"            (e, com) => {\r",
-					"                if (!e) pm.environment.set(\"adminCommentId\", com.id);\r",
-					"                cb(e);\r",
-					"            }\r",
-					"        );\r",
-					"    },\r",
+					"        }\r",
+					"    ),\r",
+					"    cb => send(\"POST\", `/users/${pm.environment.get(\"userId\")}/comments/events/${pm.environment.get(\"eventId\")}`,\r",
+					"        randomComment(),\r",
+					"        (e, com) => {\r",
+					"            if (!e) pm.environment.set(\"authorCommentId\", com.id);\r",
+					"            cb(e);\r",
+					"        }\r",
+					"    ),\r",
+					"    cb => send(\"POST\", `/users/${pm.environment.get(\"otherUserId\")}/comments/events/${pm.environment.get(\"eventId\")}`,\r",
+					"        randomComment(),\r",
+					"        (e, com) => {\r",
+					"            if (!e) pm.environment.set(\"foreignCommentId\", com.id);\r",
+					"            cb(e);\r",
+					"        }\r",
+					"    ),\r",
+					"    cb => send(\"POST\", `/users/${pm.environment.get(\"userId\")}/comments/events/${pm.environment.get(\"secondEventId\")}`,\r",
+					"        randomComment(),\r",
+					"        (e, com) => {\r",
+					"            if (!e) pm.environment.set(\"adminCommentId\", com.id);\r",
+					"            cb(e);\r",
+					"        }\r",
+					"    ),\r",
+					"    cb => send(\"PATCH\", `/admin/comments/${pm.environment.get(\"authorCommentId\")}/status?status=PUBLISHED`, null, () => {\r",
+					"        send(\"PATCH\", `/admin/comments/${pm.environment.get(\"foreignCommentId\")}/status?status=PUBLISHED`, null, cb);\r",
+					"    }),\r",
+					"    cb => { pm.environment.set(\"nonExistentCommentId\", 99999999); cb(); }\r",
 					"];\r",
 					"\r",
 					"(function run(i) {\r",
