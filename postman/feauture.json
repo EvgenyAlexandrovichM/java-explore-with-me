@@ -10,7 +10,7 @@
 			"name": "Private Добавление комментария",
 			"event": [
 				{
-					"listen": "pre-request",
+					"listen": "prerequest",
 					"script": {
 						"exec": [
 							""
@@ -42,7 +42,7 @@
 							"var commentId = pm.response.json().id;\r",
 							"pm.environment.set(\"commentId\", commentId);\r",
 							"\r",
-							"console.log(\"💾 commentId сохранён:\", commentId);\r",
+							"console.log(\" commentId сохранён:\", commentId);\r",
 							""
 						],
 						"type": "text/javascript",
@@ -183,7 +183,7 @@
 			"name": "Private Редактирование комментария не автором",
 			"event": [
 				{
-					"listen": "pre-request",
+					"listen": "prerequest",
 					"script": {
 						"exec": [
 							""
@@ -469,6 +469,49 @@
 			"response": []
 		},
 		{
+			"name": "Admin Получение несуществующего комментария по ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус 404 Not Found\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Ответ содержит причину 'Object not found'\", function () {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json.reason).to.eql(\"Object not found\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Ответ содержит корректное сообщение\", function () {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json.message).to.match(/Comment with id \\d+ not found/);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/admin/comments/9999",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"comments",
+						"9999"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Public Получение комментариев к событию",
 			"event": [
 				{
@@ -593,7 +636,7 @@
 					}
 				},
 				{
-					"listen": "pre-request",
+					"listen": "prerequest",
 					"script": {
 						"exec": [
 							"class API {\r",
@@ -774,7 +817,7 @@
 					}
 				},
 				{
-					"listen": "pre-request",
+					"listen": "prerequest",
 					"script": {
 						"exec": [
 							""
@@ -939,7 +982,7 @@
 					}
 				},
 				{
-					"listen": "pre-request",
+					"listen": "prerequest",
 					"script": {
 						"exec": [
 							""
@@ -998,163 +1041,140 @@
 				}
 			},
 			"response": []
-		},
-		{
-			"name": "Admin Получение несуществующего комментария по ID",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Статус 404 Not Found\", function () {\r",
-							"    pm.response.to.have.status(404);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Ответ содержит причину 'Object not found'\", function () {\r",
-							"    const json = pm.response.json();\r",
-							"    pm.expect(json.reason).to.eql(\"Object not found\");\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Ответ содержит корректное сообщение\", function () {\r",
-							"    const json = pm.response.json();\r",
-							"    pm.expect(json.message).to.match(/Comment with id \\d+ not found/);\r",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/admin/comments/9999",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"admin",
-						"comments",
-						"9999"
-					]
-				}
-			},
-			"response": []
 		}
 	],
 	"event": [
 		{
-			"listen": "pre-request",
+			"listen": "prerequest",
 			"script": {
 				"type": "text/javascript",
 				"packages": {},
 				"exec": [
+					"if (!pm.environment.get(\"baseUrl\")) {\r",
+					"    pm.environment.set(\"baseUrl\", \"http://localhost:8080\");\r",
+					"}\r",
 					"const baseUrl = pm.environment.get(\"baseUrl\");\r",
 					"\r",
 					"\r",
 					"function send(method, path, body, cb) {\r",
-					"  pm.sendRequest({\r",
-					"    url: baseUrl + path,\r",
-					"    method,\r",
-					"    header: { \"Content-Type\": \"application/json\" },\r",
-					"    body: body ? { mode: \"raw\", raw: JSON.stringify(body) } : undefined\r",
-					"  }, (err, res) => {\r",
-					"    if (err || !res || res.code >= 400) {\r",
-					"      return cb(err || new Error(res && res.text()));\r",
-					"    }\r",
-					"    cb(null, res.json());\r",
-					"  });\r",
+					"    pm.sendRequest({\r",
+					"        url: baseUrl + path,\r",
+					"        method,\r",
+					"        header: { \"Content-Type\": \"application/json\" },\r",
+					"        body: body ? { mode: \"raw\", raw: JSON.stringify(body) } : undefined\r",
+					"    }, (err, res) => {\r",
+					"        if (err || !res || res.code >= 400) {\r",
+					"            return cb(err || new Error(res && res.text()));\r",
+					"        }\r",
+					"        cb(null, res.json());\r",
+					"    });\r",
 					"}\r",
 					"\r",
 					"function randomUser() {\r",
-					"  return {\r",
-					"    name: pm.variables.replaceIn('{{$randomFullName}}'),\r",
-					"    email: pm.variables.replaceIn('{{$randomEmail}}')\r",
-					"  };\r",
+					"    return {\r",
+					"        name: pm.variables.replaceIn('{{$randomFullName}}'),\r",
+					"        email: pm.variables.replaceIn('{{$randomEmail}}')\r",
+					"    };\r",
 					"}\r",
 					"function randomCategory() {\r",
-					"  return { name: pm.variables.replaceIn('{{$randomWord}}') + Math.floor(Math.random() * 10000) };\r",
+					"    return { name: pm.variables.replaceIn('{{$randomWord}}') + Math.floor(Math.random() * 10000) };\r",
 					"}\r",
 					"function randomEvent(categoryId) {\r",
-					"  const moment = require('moment');\r",
-					"  return {\r",
-					"    annotation: pm.variables.replaceIn('{{$randomLoremParagraph}}'),\r",
-					"    category: categoryId,\r",
-					"    description: pm.variables.replaceIn('{{$randomLoremParagraphs}}'),\r",
-					"    eventDate: moment().add(5,'hour').format('YYYY-MM-DD HH:mm:ss'),\r",
-					"    location: {\r",
-					"      lat: parseFloat(pm.variables.replaceIn('{{$randomLatitude}}')),\r",
-					"      lon: parseFloat(pm.variables.replaceIn('{{$randomLongitude}}'))\r",
-					"    },\r",
-					"    paid: pm.variables.replaceIn('{{$randomBoolean}}'),\r",
-					"    participantLimit: pm.variables.replaceIn('{{$randomInt}}'),\r",
-					"    requestModeration: pm.variables.replaceIn('{{$randomBoolean}}'),\r",
-					"    title: pm.variables.replaceIn('{{$randomLoremSentence}}')\r",
-					"  };\r",
+					"    const moment = require('moment');\r",
+					"    return {\r",
+					"        annotation: pm.variables.replaceIn('{{$randomLoremParagraph}}'),\r",
+					"        category: categoryId,\r",
+					"        description: pm.variables.replaceIn('{{$randomLoremParagraphs}}'),\r",
+					"        eventDate: moment().add(5,'hour').format('YYYY-MM-DD HH:mm:ss'),\r",
+					"        location: {\r",
+					"            lat: parseFloat(pm.variables.replaceIn('{{$randomLatitude}}')),\r",
+					"            lon: parseFloat(pm.variables.replaceIn('{{$randomLongitude}}'))\r",
+					"        },\r",
+					"        paid: pm.variables.replaceIn('{{$randomBoolean}}'),\r",
+					"        participantLimit: pm.variables.replaceIn('{{$randomInt}}'),\r",
+					"        requestModeration: pm.variables.replaceIn('{{$randomBoolean}}'),\r",
+					"        title: pm.variables.replaceIn('{{$randomLoremSentence}}')\r",
+					"    };\r",
 					"}\r",
 					"function randomComment() {\r",
-					"  return { text: pm.variables.replaceIn('{{$randomLoremSentence}}') };\r",
+					"    return { text: pm.variables.replaceIn('{{$randomLoremSentence}}') };\r",
 					"}\r",
 					"\r",
 					"\r",
 					"[\r",
-					"  \"userId\",\"otherUserId\",\"categoryId\",\r",
+					"  \"userId\",\"categoryId\",\r",
 					"  \"eventId\",\"secondEventId\",\r",
-					"  \"commentId\",\"adminCommentId\",\"authorId\"\r",
+					"  \"commentId\",\"adminCommentId\",\r",
+					"  \"nonExistentCommentId\",\"authorId\"\r",
 					"].forEach(k => pm.environment.unset(k));\r",
 					"\r",
 					"\r",
 					"const tasks = [\r",
+					"   \r",
+					"    function(cb) {\r",
+					"        send(\"POST\", \"/admin/users\", randomUser(), (e, user) => {\r",
+					"            if (!e) {\r",
+					"                pm.environment.set(\"userId\", user.id);\r",
+					"                pm.environment.set(\"authorId\", user.id);\r",
+					"            }\r",
+					"            cb(e);\r",
+					"        });\r",
+					"    },\r",
 					"\r",
-					"  function(cb) {\r",
-					"    send(\"POST\", \"/admin/users\", randomUser(), (e, user) => {\r",
-					"      if (!e) {\r",
-					"        pm.environment.set(\"userId\", user.id);\r",
-					"        pm.environment.set(\"authorId\", user.id);\r",
-					"      }\r",
-					"      cb(e);\r",
-					"    });\r",
-					"  },\r",
+					"    function(cb) {\r",
+					"        send(\"POST\", \"/admin/categories\", randomCategory(), (e, cat) => {\r",
+					"            if (!e) pm.environment.set(\"categoryId\", cat.id);\r",
+					"            cb(e);\r",
+					"        });\r",
+					"    },\r",
 					"\r",
-					"  function(cb) {\r",
-					"    send(\"POST\", \"/admin/categories\", randomCategory(), (e, cat) => {\r",
-					"      if (!e) pm.environment.set(\"categoryId\", cat.id);\r",
-					"      cb(e);\r",
-					"    });\r",
-					"  },\r",
-					"  function(cb) {\r",
-					"    send(\"POST\", `/users/${pm.environment.get(\"userId\")}/events`, randomEvent(pm.environment.get(\"categoryId\")), (e, ev) => {\r",
-					"      if (!e) pm.environment.set(\"eventId\", ev.id);\r",
-					"      cb(e);\r",
-					"    });\r",
-					"  },\r",
-					"  function(cb) {\r",
-					"    send(\"POST\", `/users/${pm.environment.get(\"userId\")}/events`, randomEvent(pm.environment.get(\"categoryId\")), (e, ev) => {\r",
-					"      if (!e) pm.environment.set(\"secondEventId\", ev.id);\r",
-					"      cb(e);\r",
-					"    });\r",
-					"  },\r",
-					"  function(cb) {\r",
-					"    send(\"POST\", `/users/${pm.environment.get(\"userId\")}/comments/events/${pm.environment.get(\"eventId\")}`, randomComment(), (e, com) => {\r",
-					"      if (!e) pm.environment.set(\"commentId\", com.id);\r",
-					"      cb(e);\r",
-					"    });\r",
-					"  },\r",
-					"  function(cb) {\r",
-					"    send(\"POST\", `/users/${pm.environment.get(\"userId\")}/comments/events/${pm.environment.get(\"secondEventId\")}`, randomComment(), (e, com) => {\r",
-					"      if (!e) pm.environment.set(\"adminCommentId\", com.id);\r",
-					"      cb(e);\r",
-					"    });\r",
-					"  }\r",
+					"    function(cb) {\r",
+					"        send(\"POST\", `/users/${pm.environment.get(\"userId\")}/events`,\r",
+					"            randomEvent(pm.environment.get(\"categoryId\")),\r",
+					"            (e, ev) => {\r",
+					"                if (!e) pm.environment.set(\"eventId\", ev.id);\r",
+					"                cb(e);\r",
+					"            }\r",
+					"        );\r",
+					"    },\r",
+					"\r",
+					"    function(cb) {\r",
+					"        send(\"POST\", `/users/${pm.environment.get(\"userId\")}/events`,\r",
+					"            randomEvent(pm.environment.get(\"categoryId\")),\r",
+					"            (e, ev) => {\r",
+					"                if (!e) pm.environment.set(\"secondEventId\", ev.id);\r",
+					"                cb(e);\r",
+					"            }\r",
+					"        );\r",
+					"    },\r",
+					"\r",
+					"    function(cb) {\r",
+					"        send(\"POST\", `/users/${pm.environment.get(\"userId\")}/comments/events/${pm.environment.get(\"eventId\")}`,\r",
+					"            randomComment(),\r",
+					"            (e, com) => {\r",
+					"                if (!e) pm.environment.set(\"commentId\", com.id);\r",
+					"                cb(e);\r",
+					"            }\r",
+					"        );\r",
+					"    },\r",
+					"\r",
+					"    function(cb) {\r",
+					"        send(\"POST\", `/users/${pm.environment.get(\"userId\")}/comments/events/${pm.environment.get(\"secondEventId\")}`,\r",
+					"            randomComment(),\r",
+					"            (e, com) => {\r",
+					"                if (!e) pm.environment.set(\"adminCommentId\", com.id);\r",
+					"                cb(e);\r",
+					"            }\r",
+					"        );\r",
+					"    },\r",
 					"];\r",
 					"\r",
 					"(function run(i) {\r",
-					"  if (i >= tasks.length) return;\r",
-					"  tasks[i]((err) => {\r",
-					"    if (err) { return; }\r",
-					"    run(i + 1);\r",
-					"  });\r",
+					"    if (i >= tasks.length) return;\r",
+					"    tasks[i]((err) => {\r",
+					"        if (err) return;\r",
+					"        run(i + 1);\r",
+					"    });\r",
 					"})(0);\r",
 					"\r",
 					"\r",
