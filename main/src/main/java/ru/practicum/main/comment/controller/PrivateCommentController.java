@@ -66,14 +66,14 @@ public class PrivateCommentController {
                                                @PathVariable Long eventId,
                                                @RequestParam(defaultValue = "0") @Min(0) int from,
                                                @RequestParam(defaultValue = "10") @Min(1) int size) {
-       log.info("GET: Calling to endpoint /users/{}/comments/events/{} from={}, size={}", userId, eventId, from, size);
-       PrivateCommentParams params = PrivateCommentParams.builder().
-               userId(userId)
-               .eventId(eventId)
-               .from(from)
-               .size(size)
-               .build();
-       return service.getCommentsByEvent(params);
+        log.info("GET: Calling to endpoint /users/{}/comments/events/{} from={}, size={}", userId, eventId, from, size);
+        PrivateCommentParams params = PrivateCommentParams.builder()
+                .userId(userId)
+                .eventId(eventId)
+                .from(from)
+                .size(size)
+                .build();
+        return service.getCommentsByEvent(params);
     }
 
 }

@@ -23,8 +23,8 @@ public class PublicCommentController {
                                                @RequestParam(defaultValue = "10") int size,
                                                @RequestParam(defaultValue = "DATE_DESC") String sort) {
         log.info("GET: Calling to endpoint /events/{}/comments from={}, size={}, sort={}", eventId, from, size, sort);
-        PublicCommentParams params = PublicCommentParams.builder().
-                eventId(eventId)
+        PublicCommentParams params = PublicCommentParams.builder()
+                .eventId(eventId)
                 .from(from)
                 .size(size)
                 .sort(sort)
